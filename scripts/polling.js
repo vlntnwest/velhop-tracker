@@ -74,6 +74,10 @@ async function fetchBikes() {
   const bikes = response.data.data.bikes;
   const lastUpdated = response.data.last_updated;
 
+  const bikesHistoric = await prisma.bike.findMany({
+    include: { bikeHistoric: { take: 1, orderBy: { apiUpdate: "desc" } } },
+  });
+
   await Promise.all(
     bikes.map(async (bike) => {
       await prisma.bike.upsert({
@@ -92,17 +96,14 @@ async function fetchBikes() {
 
   await Promise.all(
     bikes.map(async (bike) => {
-      const lastHistoric = await prisma.bikeHistoric.findFirst({
-        where: { bikeId: bike.bike_id },
-        orderBy: { apiUpdate: "desc" },
-      });
-
+      const lastStation = bikesHistoric.find((s) => s.bikeId === bike.bike_id);
       if (
-        lastHistoric?.apiUpdate === lastUpdated ||
-        lastHistoric?.stationId === bike.station_id
+        lastStation?.bikeHistoric[0].apiUpdate === lastUpdated ||
+        lastStation?.bikeHistoric[0].stationId === bike.station_id
       ) {
         return;
       }
+      console.log("Mouvement");
 
       await prisma.bikeHistoric.create({
         data: {
