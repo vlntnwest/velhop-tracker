@@ -78,6 +78,8 @@ async function fetchBikes() {
     include: { bikeHistoric: { take: 1, orderBy: { apiUpdate: "desc" } } },
   });
 
+  const lastMap = new Map(bikesHistoric.map((b) => [b.bikeId, b]));
+
   await Promise.all(
     bikes.map(async (bike) => {
       await prisma.bike.upsert({
@@ -91,15 +93,11 @@ async function fetchBikes() {
           lastSeenAt: response.data.last_updated,
         },
       });
-    })
-  );
 
-  await Promise.all(
-    bikes.map(async (bike) => {
-      const lastStation = bikesHistoric.find((s) => s.bikeId === bike.bike_id);
+      const last = lastMap.get(bike.bike_id);
       if (
-        lastStation?.bikeHistoric[0].apiUpdate === lastUpdated ||
-        lastStation?.bikeHistoric[0].stationId === bike.station_id
+        last?.bikeHistoric[0].apiUpdate === lastUpdated ||
+        last?.bikeHistoric[0].stationId === bike.station_id
       ) {
         return;
       }
@@ -129,4 +127,9 @@ async function main() {
   }
 }
 
-main();
+async function run() {
+  await main();
+  console.log("Run complete");
+}
+
+setInterval(run, 60 * 1000);
