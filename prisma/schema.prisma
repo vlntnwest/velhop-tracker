@@ -8,92 +8,47 @@ datasource db {
 }
 
 model Station {
-  id         String    @id // GBFS station_id
-  name       String
-  lat        Float
-  lon        Float
-  capacity   Int?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-    lastApiUpdate      Int?
+  stationId     String   @id // GBFS station_id
+  name          String
+  lat           Float
+  lon           Float
+  capacity      Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastApiUpdate Int?
 
-  snapshots  Snapshot[]
-  fromTrips  Trip[]    @relation("TripFromStation")
-  toTrips    Trip[]    @relation("TripToStation")
-  bikesAt    BikeAtStation[]
+  snapshots    Snapshot[]
+  bikeHistoric BikeHistoric[]
 
   @@index([lat, lon])
 }
 
 model Snapshot {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   stationId         String
-  station           Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  ts                DateTime
+  station           Station @relation(fields: [stationId], references: [stationId], onDelete: Cascade)
   numBikesAvailable Int
   numDocksAvailable Int?
-  lastApiUpdate      Int?
-
-  @@unique([stationId, ts])
-  @@index([ts])
-  @@index([stationId, ts]) // utile pour chercher le dernier snapshot par station
+  apiUpdate     Int?
 }
 
 model Bike {
-  id         String   @id // GBFS bike_id
-  vehicleType String?
-  lastSeenAt DateTime?
-  createdAt  DateTime @default(now())
-    lastApiUpdate      Int?
-
-  positions  BikePosition[]
-  trips      Trip[]
-  atStations BikeAtStation[]
+  bikeId       String         @id // GBFS bike_id
+  lastSeenAt   Int?
+  createdAt    DateTime       @default(now())
+  bikeHistoric BikeHistoric[]
 }
 
-model BikePosition {
-  id      String   @id @default(cuid())
-  bikeId  String
-  bike    Bike     @relation(fields: [bikeId], references: [id], onDelete: Cascade)
-  ts      DateTime
-  lat     Float
-  lon     Float
-    lastApiUpdate      Int?
+model BikeHistoric {
+  id            String   @id @default(cuid())
+  bikeId        String
+  bike          Bike     @relation(fields: [bikeId], references: [bikeId], onDelete: Cascade)
+  stationId     String
+  station       Station  @relation(fields: [stationId], references: [stationId], onDelete: Cascade)
+  capturedAt    DateTime @default(now()) // date à laquelle l'API a fourni l'état
+  apiUpdate Int?
 
-  @@unique([bikeId, ts])
-  @@index([ts])
-  @@index([bikeId, ts])
-}
-
-model Trip {
-  id             String   @id @default(cuid())
-  bikeId         String
-  bike           Bike     @relation(fields: [bikeId], references: [id], onDelete: Cascade)
-
-  fromStationId  String?
-  originStation  Station? @relation("TripFromStation", fields: [fromStationId], references: [id], onDelete: SetNull)
-
-  toStationId    String?
-  destinationStation Station? @relation("TripToStation", fields: [toStationId], references: [id], onDelete: SetNull)
-
-  startedAt      DateTime?
-  endedAt        DateTime?
-    lastApiUpdate      Int?
-
+  @@unique([bikeId, stationId, capturedAt])
   @@index([bikeId])
-  @@index([startedAt])
-}
-
-model BikeAtStation {
-  id         String   @id @default(cuid())
-  stationId  String
-  station    Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  bikeId     String
-  bike       Bike     @relation(fields: [bikeId], references: [id], onDelete: Cascade)
-  capturedAt DateTime @default(now())
-    lastApiUpdate      Int?
-
-
-  @@unique([stationId, bikeId, capturedAt])
   @@index([capturedAt])
 }
