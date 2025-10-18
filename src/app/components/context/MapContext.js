@@ -16,6 +16,7 @@ export function useMapContext() {
 export default function MapProvider({ children }) {
   const [stations, setStations] = useState([]);
   const [polylinesArray, setPolylinesArray] = useState([]);
+  const [bikeHistoric, setBikeHistoric] = useState([]);
 
   // Fetch station lat and lng
   const fetchStationLatLong = useCallback(async (stationIds) => {
@@ -26,6 +27,12 @@ export default function MapProvider({ children }) {
       })
     );
     return latLngArray;
+  }, []);
+
+  // Fetch bike historic
+  const fetchBikeHistoric = useCallback(async (bikeId) => {
+    const response = await axios.get(`/api/get-bike-historic/${bikeId}`);
+    setBikeHistoric(response.data.bikeHistoric);
   }, []);
 
   // Fetch stations
@@ -64,7 +71,14 @@ export default function MapProvider({ children }) {
   }, [stations, fetchStationLatLong]);
 
   return (
-    <MapContext.Provider value={{ stations, polylinesArray }}>
+    <MapContext.Provider
+      value={{
+        stations,
+        polylinesArray,
+        fetchBikeHistoric,
+        bikeHistoric,
+      }}
+    >
       {children}
     </MapContext.Provider>
   );

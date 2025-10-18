@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
+import { useMapContext } from "./context/MapContext";
+import { useMap } from "react-leaflet";
 
 const InnerPopup = ({ station }) => {
+  const { fetchBikeHistoric } = useMapContext();
+  const map = useMap();
+
+  const handleClick = async (bikeId) => {
+    map.closePopup();
+    await fetchBikeHistoric(bikeId);
+  };
+
   return (
     <div>
       <h3>{station.name}</h3>
@@ -9,7 +19,7 @@ const InnerPopup = ({ station }) => {
         <Button
           key={bike.bikeId}
           variant="link"
-          onClick={() => console.log(bike.bikeId)}
+          onClick={() => handleClick(bike.bikeId)}
         >
           {bike.bikeId}
         </Button>

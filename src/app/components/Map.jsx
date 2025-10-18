@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import Lines from "./Lines";
 import InnerPopup from "./InnerPopup";
@@ -10,7 +10,7 @@ import { useMapContext } from "./context/MapContext";
 export default function Map() {
   const position = [48.611639, 7.742056];
   const [mounted, setMounted] = useState(false);
-  const { stations, polylinesArray } = useMapContext();
+  const { stations } = useMapContext();
 
   useEffect(() => {
     setMounted(true);
@@ -38,12 +38,12 @@ export default function Map() {
               center={[station.lat, station.lng]}
               pathOptions={{ color: "var(--color-dark-green)" }}
             >
-              <Popup>
+              <Popup closeButton={false}>
                 <InnerPopup station={station} />
               </Popup>
             </CircleMarker>
           ))}
-          <Lines polylinesArray={polylinesArray} />
+          <Lines />
         </MapContainer>
       </div>
     </>
