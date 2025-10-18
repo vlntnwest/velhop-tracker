@@ -3,24 +3,25 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-dark-green: #003e14;
+  --color-green-accent: #6dbe44;
+  --color-medium-green: #16924a;
+  --color-light-green-2: #16924a1a;
+  --color-light-green: #edf5e1;
+  --color-yellow-contrast: #fedc02;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.leaflet-div-icon,
+.leaflet-marker-icon {
+  background-image: url("/images/leaflet/marker-icon.png") !important;
 }
