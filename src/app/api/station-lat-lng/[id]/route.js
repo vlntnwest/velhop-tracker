@@ -15,7 +15,6 @@ export async function GET(request, { params }) {
         lng: true,
       },
     });
-    console.log(response);
     return new Response(JSON.stringify(response), {
       headers: {
         "Content-Type": "application/json",

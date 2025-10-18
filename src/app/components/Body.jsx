@@ -1,17 +1,19 @@
 "use client";
-
 import dynamic from "next/dynamic";
+import { Spinner } from "../../components/ui/shadcn-io/spinner";
+import MapProvider from "./context/MapContext";
 
 const LazyMap = dynamic(() => import("./Map"), {
   ssr: false,
-  loading: () => <p>Loading...</p>,
+  loading: () => <Spinner variant="ring" />,
 });
 
 const Body = () => {
   return (
     <section className="flex flex-col w-full h-full items-center justify-center px-5">
-      <h1 className="text-2xl font-bold">Map</h1>
-      <LazyMap />
+      <MapProvider>
+        <LazyMap />
+      </MapProvider>
     </section>
   );
 };
