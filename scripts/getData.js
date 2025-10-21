@@ -122,17 +122,12 @@ async function main() {
     await fetchStationsAndBikes(velhopData);
   } catch (e) {
     console.error(e);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-async function loop() {
-  while (true) {
-    await main();
-    await new Promise((r) => setTimeout(r, 60 * 1000));
-  }
-}
-
-loop().catch(console.error);
+main().catch(console.error);
 
 process.on("SIGINT", async () => {
   console.log("Shutting down, disconnecting prisma…");
